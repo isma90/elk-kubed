@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elastic-cluster
+  namespace: elk
+spec:
+  selector:
+    matchLabels:
+      component: elasticsearch
+  serviceName: elasticsearch
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+    spec:
+      containers:
+        - name: elasticsearch
+          image: elasticsearch:7.0.0
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: transport
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /_cluster/health
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: transport
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          env:
+            - name: discovery.type
+              value: "single-node"
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: elastic-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: elk
+  name: elasticsearch
+  labels:
+    component: elasticsearch
+    role: data
+spec:
+  clusterIP: None
+  selector:
+    component: elasticsearch
+    role: data
+  ports:
+    - port: 9200
+      name: http
+    - port: 9300
+      name: node-to-node
