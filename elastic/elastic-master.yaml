@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: elk
+  name: elasticsearch-master
+  labels:
+    app: elasticsearch
+    role: master
+spec:
+  serviceName: elasticsearch-master
+  replicas: 3
+  selector:
+    matchLabels:
+      app: elasticsearch
+      role: master
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+        role: master
