@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch-data
+  namespace: elk
+spec:
+  selector:
+    matchLabels:
+      component: elasticsearch
+      role: data
+  serviceName: elasticsearch
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+        role: data
+    spec:
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: transport
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /_cluster/health
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: transport
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            limits:
+              memory: 1Gi
+          env:
+            - name: discovery.type
+              value: "elasticsearch-master.elk.svc.cluster.local"
+            - name: node.master
+              value: "false"
+            - name: node.ingest
+              value: "true"
+            - name: node.data
+              value: "true"
+            - name: node.max_local_storage_nodes
+              value: "5"
+            - name: cluster.remote.connect
+              value: "true"
+            - name: cluster.name
+              value: elk-cluster
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+            - name: config
+              mountPath: /usr/share/elasticsearch/jdk/lib/security/java.security
+              subPath: java.scurity
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: elastic-data
+        - name: config
+          configMap:
+            name: elastic-config
+---
