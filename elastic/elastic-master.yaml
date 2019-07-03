@@ -19,6 +19,12 @@ spec:
         component: elasticsearch
         role: master
     spec:
+      initContainers:
+        - name: increase-the-vm-max-map-count
+          image: busybox
+          command: ['sysctl', '-w', 'vm.max_map_count=262144']
+          securityContext:
+            privileged: true
       containers:
         - name: elasticsearch
           image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0
