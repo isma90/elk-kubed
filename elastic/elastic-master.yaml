@@ -18,3 +18,49 @@ spec:
       labels:
         component: elasticsearch
         role: master
+    spec:
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:7.0.0
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: transport
+          livenessProbe:
+            tcpSocket:
+              port: transport
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 0.25
+            limits:
+              cpu: 1
+              memory: 1Gi
+          env:
+            - name: discovery.seed_hosts
+              value: "elasticsearch-master.elk.svc.cluster.local"
+            - name: cluster.initial_master_nodes
+              value: "elasticsearch-master-0,elasticsearch-master-1,elasticsearch-master-2"
+            - name: ES_JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: elastic-config
+                  key: ES_JAVA_OPTS
+            - name: node.master
+              value: "true"
+            - name: node.ingest
+              value: "false"
+            - name: node.data
+              value: "false"
+            - name: search.remote.connect
+              value: "false"
+            - name: node.max_local_storage_nodes
+              value: "5"
+            - name: cluster.name
+              value: elk-cluster
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
