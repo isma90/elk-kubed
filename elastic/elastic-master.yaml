@@ -4,14 +4,14 @@ metadata:
   namespace: elk
   name: elasticsearch-master
   labels:
-    app: elasticsearch
+    component: elasticsearch
     role: master
 spec:
   serviceName: elasticsearch-master
   replicas: 3
   selector:
     matchLabels:
-      app: elasticsearch
+      component: elasticsearch
       role: master
   template:
     metadata:
@@ -64,3 +64,16 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+          volumeMounts:
+            - mountPath: /usr/share/elasticsearch/data
+              name: data
+            - mountPath: /usr/share/elasticsearch/jdk/lib/security/java.security
+              subPath: java.security
+              name: config
+      volumes:
+        - name: config
+          configMap:
+            name: elastic-config
+        - name: data
+          persistentVolumeClaim:
+            claimName: elastic-data
