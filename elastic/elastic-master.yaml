@@ -4,21 +4,37 @@ metadata:
   namespace: elk
   name: elasticsearch-master
   labels:
-    component: elasticsearch
+    app: elasticsearch
     role: master
 spec:
   serviceName: elasticsearch-master
   replicas: 3
   selector:
     matchLabels:
-      component: elasticsearch
+      app: elasticsearch
       role: master
   template:
     metadata:
       labels:
-        component: elasticsearch
+        app: elasticsearch
         role: master
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - elasticsearch
+                    - key: role
+                      operator: In
+                      values:
+                        - master
+                topologyKey: kubernetes.io/hostname
       initContainers:
         - name: increase-the-vm-max-map-count
           image: busybox
@@ -54,6 +70,7 @@ spec:
                 configMapKeyRef:
                   name: elastic-config
                   key: ES_JAVA_OPTS
+
             - name: node.master
               value: "true"
             - name: node.ingest
@@ -71,11 +88,11 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
           volumeMounts:
-            - mountPath: /usr/share/elasticsearch/data
-              name: data
-            - mountPath: /usr/share/elasticsearch/jdk/lib/security/java.security
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+            - name: config
+              mountPath: /usr/share/elasticsearch/jdk/lib/security/java.security
               subPath: java.security
-              name: config
       volumes:
         - name: config
           configMap:

@@ -1,25 +1,58 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: elasticsearch-data
   namespace: elk
+  name: elasticsearch-data
+  labels:
+    app: elasticsearch
+    role: data
 spec:
-  selector:
-    matchLabels:
-      component: elasticsearch
-      role: data
   serviceName: elasticsearch-data
   replicas: 2
+  selector:
+    matchLabels:
+      app: elasticsearch
+      role: data
   template:
     metadata:
       labels:
-        component: elasticsearch
+        app: elasticsearch
         role: data
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - elasticsearch
+                    - key: role
+                      operator: In
+                      values:
+                        - data
+                topologyKey: kubernetes.io/hostname
+      terminationGracePeriodSeconds: 300
       initContainers:
+        - name: fix-the-volume-permission
+          image: busybox
+          command: ['sh', '-c', 'chown -R 1000:1000 /usr/share/elasticsearch/data']
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
         - name: increase-the-vm-max-map-count
           image: busybox
           command: ['sysctl', '-w', 'vm.max_map_count=262144']
+          securityContext:
+            privileged: true
+        - name: increase-the-ulimit
+          image: busybox
+          command: ['sh', '-c', 'ulimit -n 65536']
           securityContext:
             privileged: true
       containers:
@@ -30,23 +63,29 @@ spec:
               name: http
             - containerPort: 9300
               name: transport
-          readinessProbe:
-            httpGet:
-              port: http
-              path: /_cluster/health
-            initialDelaySeconds: 20
-            timeoutSeconds: 5
           livenessProbe:
             tcpSocket:
               port: transport
             initialDelaySeconds: 20
             periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health
+              port: http
+            initialDelaySeconds: 20
+            timeoutSeconds: 5
           resources:
             limits:
               memory: 1Gi
           env:
-            - name: discovery.type
+            - name: discovery.seed_hosts
               value: "elasticsearch-master.elk.svc.cluster.local"
+            - name: ES_JAVA_OPTS
+              valueFrom:
+                configMapKeyRef:
+                  name: elastic-config
+                  key: ES_JAVA_OPTS
+
             - name: node.master
               value: "false"
             - name: node.ingest
@@ -68,12 +107,11 @@ spec:
               mountPath: /usr/share/elasticsearch/data
             - name: config
               mountPath: /usr/share/elasticsearch/jdk/lib/security/java.security
-              subPath: java.scurity
+              subPath: java.security
       volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: elastic-data
         - name: config
           configMap:
             name: elastic-config
----
+        - name: data
+          persistentVolumeClaim:
+            claimName: elastic-data

@@ -4,15 +4,15 @@ metadata:
   namespace: elk
   name: elasticsearch-master
   labels:
-    component: elasticsearch
+    app: elasticsearch
     role: master
 spec:
   clusterIP: None
   selector:
-    component: elasticsearch
+    app: elasticsearch
     role: master
   ports:
     - port: 9200
       name: http
     - port: 9300
-      name: transport
+      name: node-to-node
