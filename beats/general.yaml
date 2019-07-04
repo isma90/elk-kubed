@@ -30,6 +30,10 @@ metadata:
     k8s-app: metricbeat
 data:
   system.yml: |-
+    - module: prometheus
+      period: 10s
+      hosts: ["http://prometheus.monitoring.svc.cluster.local:9090"]
+      metrics_path: /metrics
     - module: system
       period: 10s
       metricsets:
