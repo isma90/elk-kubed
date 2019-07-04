@@ -24,3 +24,5 @@ Based on:
 - [Elasticsearch-kubed](https://github.com/jswidler/elasticsearch-kubed)
 - [Kubernetes-elk-cluster](https://github.com/pires/kubernetes-elk-cluster)
 - [k8s-elk](https://github.com/neogenix/k8s-elk)
+- [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics)
+- [jaeger-kubernetes](https://github.com/jaegertracing/jaeger-kubernetes#production-setup)
