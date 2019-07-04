@@ -11,7 +11,12 @@ data:
     metricbeat.config.modules:
       path: ${path.config}/modules.d/*.yml
       reload.enabled: false
-    #processors:
+    processors:
+      - drop_fields:
+          when:
+            has_fields: ['kubernetes.labels.app']
+          fields:
+            - 'kubernetes.labels.app'
     #  - add_cloud_metadata: # Doesn't work on Azure
     output.elasticsearch:
       hosts: ['http://elasticsearch.elk.svc.cluster.local:9200']
@@ -155,7 +160,12 @@ data:
     metricbeat.config.modules:
       path: ${path.config}/modules.d/*.yml
       reload.enabled: false
-    #processors:
+    processors:
+      - drop_fields:
+          when:
+            has_fields: ['kubernetes.labels.app']
+          fields:
+            - 'kubernetes.labels.app'
     #  - add_cloud_metadata: # Doesn't work on Azure
     output.elasticsearch:
       hosts: ['http://elasticsearch.elk.svc.cluster.local:9200']
