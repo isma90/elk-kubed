@@ -1,7 +1,34 @@
 # EKL Kubed
 
+**Dependencies:**
 
+> kube metrics kubernetes plugin
 
+`kubectl apply -f 0_dependencies/kube-state-metrics`
+
+**General configuration (namespace, storage)**
+
+`Kubectl apply -f 1_general`
+
+**Elastic search**
+
+`kubectl apply -f 2_elastic`
+
+**Kibana**
+
+`kubectl apply -f 3_kibana`
+
+**Beat general configurations**
+
+`kubectl apply -f 4_beats`
+
+**Beat workers**
+
+`kubectl apply -f 5_beats`
+
+**Logstash**
+
+`In progress`
 
 ### Author
 
