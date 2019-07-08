@@ -8,6 +8,7 @@
 
 **General configuration (namespace, storage)**
 
+`kubectl apply -f 1_general/namespace.yaml`
 `Kubectl apply -f 1_general`
 
 **Elastic search**
