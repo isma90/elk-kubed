@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: elk
+  name: logstash
+  labels:
+    component: logstash
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: logstash
+  template:
+    metadata:
+      labels:
+        component: logstash
+    spec:
+      containers:
+        - name: logstash
+          image: docker.elastic.co/logstash/logstash:7.0.0
+          ports:
+            - containerPort: 5044
+              name: beats
+            - containerPort: 5010
+              name: tcp
+          volumeMounts:
+            - name: logstash-pipelines
+              mountPath: /usr/share/logstash/pipeline
+      volumes:
+        - name: logstash-pipelines
+          configMap:
+            name: logstash-pipelines
