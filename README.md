@@ -29,7 +29,7 @@
 
 **Logstash**
 
-`In progress`
+`kubectl apply -f 6_logstash`
 
 ### Author
 
