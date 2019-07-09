@@ -32,9 +32,36 @@
 `kubectl apply -f 6_logstash`
 
 
-**You can all this commands or use a deploy bash script contained on utility folder.**
+**You can run all these commands manually or use the bash script contained on utility folder.**
 
+## Reduce or Increase elastic nodes
 
+### Data nodes
+
+In the example have 1 node of data declared in `elastic-data.yaml`, for increase only need add more replicas.
+
+```yaml
+spec:
+  serviceName: elasticsearch-data
+  replicas: 1
+```
+### Master Nodes
+
+In the case of master `elastic-master.yaml` nodes you need update the replica param and the enviroment `cluster.initial_master_nodes` need add or remove the name of master nodes candidates.
+```yaml
+spec:
+  serviceName: elasticsearch-master
+  replicas: 2
+  
+...
+          env:
+            - name: discovery.seed_hosts
+              value: "elasticsearch-master.elk.svc.cluster.local"
+            - name: cluster.initial_master_nodes
+              value: "elasticsearch-master-0,elasticsearch-master-1" # necessarily have to match the number of replicas
+  
+  
+```
 
 
 ### Author
