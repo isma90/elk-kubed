@@ -31,6 +31,12 @@
 
 `kubectl apply -f 6_logstash`
 
+
+**You can all this commands or use a deploy bash script contained on utility folder.**
+
+
+
+
 ### Author
 
 **Ismael Leiva**
