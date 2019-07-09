@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metricbeat-daemonset-config
+  namespace: kube-system
+  labels:
+    k8s-app: metricbeat
+data:
+  metricbeat.yml: |-
+    metricbeat.config.modules:
+      path: ${path.config}/modules.d/*.yml
+      reload.enabled: false
+    processors:
+      - drop_fields:
+          when:
+            has_fields: ['kubernetes.labels.app']
+          fields:
+            - 'kubernetes.labels.app'
+    #  - add_cloud_metadata: # Doesn't work on Azure
+    output.elasticsearch:
+      hosts: ['http://elasticsearch.elk.svc.cluster.local:9200']
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metricbeat-daemonset-modules
+  namespace: kube-system
+  labels:
+    k8s-app: metricbeat
+data:
+  system.yml: |-
+    - module: prometheus
+      period: 10s
+      hosts: ["http://prometheus.monitoring.svc.cluster.local:9090"]
+      metrics_path: /metrics
+    - module: system
+      period: 10s
+      metricsets:
+        - cpu
+        - load
+        - memory
+        - network
+        - process
+        - process_summary
+      processes: ['.*']
+      process.include_top_n:
+        by_cpu: 5      # include top 5 processes by CPU
+        by_memory: 5   # include top 5 processes by memory
+    - module: system
+      period: 1m
+      metricsets:
+        - filesystem
+        - fsstat
+      processors:
+      - drop_event:
+          when:
+            regexp:
+              system.filesystem.mount_point: '^/(sys|cgroup|proc|dev|etc|host|lib)($|/)'
+  kubernetes.yml: |-
+    - module: kubernetes
+      metricsets:
+        - node
+        - system
+        - pod
+        - container
+        - volume
+      period: 10s
+      host: ${NODE_NAME}
+      hosts: ["localhost:10255"]

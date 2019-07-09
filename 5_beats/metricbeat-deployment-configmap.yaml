@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metricbeat-deployment-config
+  namespace: kube-system
+  labels:
+    k8s-app: metricbeat
+data:
+  metricbeat.yml: |-
+    metricbeat.config.modules:
+      path: ${path.config}/modules.d/*.yml
+      reload.enabled: false
+    processors:
+      - drop_fields:
+          when:
+            has_fields: ['kubernetes.labels.app']
+          fields:
+            - 'kubernetes.labels.app'
+    #  - add_cloud_metadata: # Doesn't work on Azure
+    output.elasticsearch:
+      hosts: ['http://elasticsearch.elk.svc.cluster.local:9200']
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metricbeat-deployment-modules
+  namespace: kube-system
+  labels:
+    k8s-app: metricbeat
+data:
+  # This module requires `kube-state-metrics` up and running under `kube-system` namespace
+  kubernetes.yml: |-
+    - module: kubernetes
+      metricsets:
+        - state_node
+        - state_deployment
+        - state_replicaset
+        - state_pod
+        - state_container
+      period: 10s
+      host: ${NODE_NAME}
+      hosts: ["kube-state-metrics:8080"]
