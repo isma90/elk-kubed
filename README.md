@@ -31,6 +31,10 @@
 
 `kubectl apply -f 6_logstash`
 
+**Fluentd**
+
+`kubectl create -f 7_fluentd`
+
 
 **You can run all these commands manually or use the bash script contained on utility folder.**
 

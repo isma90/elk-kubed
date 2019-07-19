@@ -14,3 +14,5 @@ sleep 10s
 kubectl apply -f 5_beats
 sleep 10s
 kubectl apply -f 6_logstash
+sleep 2s
+kubectl create -f 7_fluentd
