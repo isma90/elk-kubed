@@ -87,3 +87,4 @@ Based on:
 - [k8s-elk](https://github.com/neogenix/k8s-elk)
 - [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics)
 - [jaeger-kubernetes](https://github.com/jaegertracing/jaeger-kubernetes#production-setup)
+- [digitalocean](https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes#step-4-—-creating-the-fluentd-daemonset)
