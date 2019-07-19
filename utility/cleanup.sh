@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 cd ..
+kubectl delete -f 7_fluentd
 kubectl delete -f 6_logstash
 kubectl delete -f 5_beats
 kubectl delete -f 4_beats
