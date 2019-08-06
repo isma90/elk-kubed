@@ -31,6 +31,10 @@ spec:
               value: "http"
             - name: FLUENTD_SYSTEMD_CONF
               value: disable
+            - name: FLUENT_ELASTICSEARCH_LOGSTASH_INDEX_NAME
+              value: "fluentd"
+            - name: FLUENT_ELASTICSEARCH_LOGSTASH_PREFIX
+              value: "fluentd"
           resources:
             limits:
               memory: 512Mi
