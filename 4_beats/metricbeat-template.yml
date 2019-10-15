@@ -6,6 +6,10 @@ metadata:
 spec:
   template:
     spec:
+      initContainers:
+        - name: wait-services
+          image: busybox
+          command: ['sh', '-c', 'until nslookup elasticsearch.elk.svc.cluster.local; do echo waiting service start; sleep 15; done;']
       containers:
       - name: metricbeat-template-init
         image: docker.elastic.co/beats/metricbeat:7.0.0
@@ -13,4 +17,4 @@ spec:
           "-E", "output.logstash.enabled=false",
           "-E", 'output.elasticsearch.hosts=["elasticsearch.elk.svc.cluster.local:9200"]' ]
       restartPolicy: Never
-  backoffLimit: 4
+  backoffLimit: 5
