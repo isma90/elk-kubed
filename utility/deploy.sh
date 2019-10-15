@@ -3,7 +3,7 @@
 cd ..
 
 kubectl apply -f 0_dependencies/kube-state-metrics
-kubectl apply -f 1_general/namespace.yaml
+kubectl apply -f 0_dependencies/namespace.yaml
 kubectl apply -f 1_general
 kubectl apply -f 2_elastic
 sleep 230s # why? because elastic need a while to run and you need running elastic to connect, without errors, kibana, beats and logstash

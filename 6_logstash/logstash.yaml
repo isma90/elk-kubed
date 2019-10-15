@@ -15,6 +15,10 @@ spec:
       labels:
         component: logstash
     spec:
+      initContainers:
+        - name: wait-services
+          image: busybox
+          command: ['sh', '-c', 'until nslookup elasticsearch.elk.svc.cluster.local; do echo waiting service start; sleep 2; done;']
       containers:
         - name: logstash
           image: docker.elastic.co/logstash/logstash:7.0.0
