@@ -67,6 +67,18 @@ spec:
   
 ```
 
+### Fluentd
+
+You can change the elastisearch index pattern:
+
+
+```yaml
+            - name: FLUENT_ELASTICSEARCH_LOGSTASH_INDEX_NAME
+              value: "fluentd"
+            - name: FLUENT_ELASTICSEARCH_LOGSTASH_PREFIX
+              value: "fluentd"
+```
+
 
 ### Author
 

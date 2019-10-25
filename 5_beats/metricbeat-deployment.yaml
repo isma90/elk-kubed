@@ -14,6 +14,10 @@ spec:
       serviceAccountName: metricbeat
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
+      initContainers:
+        - name: wait-services
+          image: busybox
+          command: ['sh', '-c', 'until nslookup elasticsearch.elk.svc.cluster.local; do echo waiting service start; sleep 2; done;']
       containers:
         - name: metricbeat
           image: docker.elastic.co/beats/metricbeat:7.0.0

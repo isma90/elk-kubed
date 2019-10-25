@@ -19,6 +19,10 @@ spec:
       tolerations:
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
+      initContainers:
+        - name: wait-services
+          image: busybox
+          command: ['sh', '-c', 'until nslookup elasticsearch.elk.svc.cluster.local; do echo waiting service start; sleep 2; done;']
       containers:
         - name: fluentd
           image: fluent/fluentd-kubernetes-daemonset:v1.4.2-debian-elasticsearch-1.1
@@ -31,6 +35,10 @@ spec:
               value: "http"
             - name: FLUENTD_SYSTEMD_CONF
               value: disable
+            - name: FLUENT_ELASTICSEARCH_LOGSTASH_INDEX_NAME
+              value: "fluentd"
+            - name: FLUENT_ELASTICSEARCH_LOGSTASH_PREFIX
+              value: "fluentd"
           resources:
             limits:
               memory: 512Mi
