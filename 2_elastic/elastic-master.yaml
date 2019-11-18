@@ -8,7 +8,7 @@ metadata:
     role: master
 spec:
   serviceName: elasticsearch-master
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: elasticsearch
@@ -64,7 +64,7 @@ spec:
             - name: discovery.seed_hosts
               value: "elasticsearch-master.elk.svc.cluster.local"
             - name: cluster.initial_master_nodes
-              value: "elasticsearch-master-0,elasticsearch-master-1"
+              value: "elasticsearch-master-0"
             - name: ES_JAVA_OPTS
               valueFrom:
                 configMapKeyRef:
